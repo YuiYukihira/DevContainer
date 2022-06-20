@@ -1,0 +1,40 @@
+version: 2.1
+workflows:
+  version: 2
+  branch:
+    jobs:
+      - makepress-orb/release-please-single:
+          context: [lulubot]
+          filters:
+            branches:
+              only:
+                - main
+      - makepress-orb/publish-docker:
+          context: [lulubot]
+          requires:
+            - makepress-orb/release-please-single
+          filters:
+            branches:
+              only:
+                - main
+          username: LULUBOT_USERNAME
+          password: GITHUB_TOKEN_LULUBOT
+          tag: latest
+          image: dev-container
+          registry: ghcr.io
+  release:
+    jobs:
+      - makepress-orb/publish-docker:
+          context: [lulubot]
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          username: LULUBOT_USERNAME
+          password: GITHUB_TOKEN_LULUBOT
+          tag: ${CIRCLE_TAG/v/''}
+          image: dev-container
+          registry: ghcr.io
+orbs:
+  makepress-orb: makepress/makepress-orb@2.4.0

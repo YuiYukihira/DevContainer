@@ -11,10 +11,8 @@ RUN nix-channel --update && \
     nixpkgs.gcc \
     nixpkgs.gnused \
     nixpkgs.gnumake \
-    nixpkgs.powerline-fonts && \
-    git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-
-RUN cd ~/.pyenv && src/configure && make -C src
+    nixpkgs.powerline-fonts \
+    nixpkgs.vim 
 
 ADD .dotfiles/ .dotfiles/
 

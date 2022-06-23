@@ -10,6 +10,7 @@ workflows:
               only:
                 - main
       - makepress-orb/publish-docker:
+          name: base
           context: [lulubot]
           requires:
             - makepress-orb/release-please-single
@@ -19,12 +20,42 @@ workflows:
                 - main
           username: LULUBOT_USERNAME
           password: GITHUB_TOKEN_LULUBOT
-          tag: latest
           image: dev-container
           registry: ghcr.io
+          tag: latest
+          dockerfile: base
+      - makepress-orb/publish-docker:
+          context: [lulubot]
+          requires:
+            - base
+          filters:
+            branches:
+              only:
+                - main
+          username: LULUBOT_USERNAME
+          password: GITHUB_TOKEN_LULUBOT
+          image: dev-container
+          registry: ghcr.io
+          tag: python
+          dockerfile: python
+      - makepress-orb/publish-docker:
+          context: [lulubot]
+          requires:
+            - base
+          filters:
+            branches:
+              only:
+                - main
+          username: LULUBOT_USERNAME
+          password: GITHUB_TOKEN_LULUBOT
+          image: dev-container
+          registry: ghcr.io
+          tag: rust
+          dockerfile: rust
   release:
     jobs:
       - makepress-orb/publish-docker:
+          name: base
           context: [lulubot]
           filters:
             tags:
@@ -33,8 +64,41 @@ workflows:
               ignore: /.*/
           username: LULUBOT_USERNAME
           password: GITHUB_TOKEN_LULUBOT
-          tag: ${CIRCLE_TAG/v/''}
           image: dev-container
           registry: ghcr.io
+          tag: "${CIRCLE_TAG/v/''}"
+          dockerfile: base
+      - makepress-orb/publish-docker:
+          context: [lulubot]
+          requires:
+            - base
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          username: LULUBOT_USERNAME
+          password: GITHUB_TOKEN_LULUBOT
+          image: dev-container
+          registry: ghcr.io
+          tag: "${CIRCLE_TAG/v/''}-python"
+          dockerfile: python
+      - makepress-orb/publish-docker:
+          context: [lulubot]
+          requires:
+            - base
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          username: LULUBOT_USERNAME
+          password: GITHUB_TOKEN_LULUBOT
+          image: dev-container
+          registry: ghcr.io
+          tag: "${CIRCLE_TAG/v/''}-rust"
+          dockerfile: rust
+                
+          
 orbs:
-  makepress-orb: makepress/makepress-orb@2.4.0
+  makepress-orb: makepress/makepress-orb@2.4.1
